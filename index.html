@@ -271,28 +271,28 @@
                 <p class="text-gray-600">御社が現在探している「ターゲットエリア」をヒアリングし、実際のデータを用いた無料デモを実施します。</p>
             </div>
 
-            <form class="space-y-6" onsubmit="event.preventDefault(); alert('お問い合わせありがとうございます。デモの担当者よりご連絡いたします。');">
+            <form class="space-y-6" action="https://formspree.io/f/xojyreeg" method="POST">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">会社名</label>
-                        <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="株式会社〇〇" required>
+                        <input type="text" name="company" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="株式会社〇〇" required>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">ご担当者名</label>
-                        <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="山田 太郎" required>
+                        <input type="text" name="name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="山田 太郎" required>
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">メールアドレス</label>
-                    <input type="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="yamada@example.com" required>
+                    <input type="email" name="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="yamada@example.com" required>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">ご要望（無料トライアル希望、デモ希望など）</label>
-                    <select class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all bg-white">
-                        <option>無料トライアル（1週間）を希望</option>
-                        <option>オンラインデモ・詳しい説明を希望</option>
-                        <option>料金プランについての相談</option>
-                        <option>その他のお問い合わせ</option>
+                    <select name="request_type" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all bg-white">
+                        <option value="無料トライアル希望">無料トライアル（1週間）を希望</option>
+                        <option value="オンラインデモ希望">オンラインデモ・詳しい説明を希望</option>
+                        <option value="料金プラン相談">料金プランについての相談</option>
+                        <option value="その他">その他のお問い合わせ</option>
                     </select>
                 </div>
                 <button type="submit" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-4 rounded-xl transition-colors shadow-lg text-lg">
