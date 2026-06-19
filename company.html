@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<!--
+  Swift Map合同会社 コーポレートサイト
+  ※ 会社設立登記完了後に公開予定。PRIVATE_INFO.md の情報を反映済み。
+-->
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Swift Map合同会社 | 探す時間を、前に進む時間へ。</title>
+    <meta name="description" content="Swift Map合同会社は、空き地・遊休地の探索を自動化し、土地が動く速度を上げる会社です。BESS（蓄電池）用地探索のEneMap AIを起点に、再エネ・不動産全般の「候補地を見つける」作業を圧縮します。">
+    <meta name="keywords" content="Swift Map, スウィフトマップ, EneMap AI, 空き地, 遊休地, 用地探索, GIS, 系統用蓄電池, 再生可能エネルギー, 不動産テック">
+    <meta name="author" content="Swift Map合同会社">
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
+    <meta name="apple-mobile-web-app-title" content="Swift Map">
+
+    <!-- OGP -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Swift Map合同会社 | 探す時間を、前に進む時間へ。">
+    <meta property="og:description" content="空き地・遊休地の探索を自動化し、土地が動く速度を上げる。BESS用地探索 EneMap AI を起点に、不動産全般の候補地探索を圧縮します。">
+    <meta property="og:site_name" content="Swift Map合同会社">
+    <meta property="og:locale" content="ja_JP">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Swift Map合同会社",
+      "alternateName": "Swift Map LLC",
+      "description": "空き地・遊休地の探索を自動化し、土地が動く速度を上げる会社。BESS用地探索のEneMap AIを提供。",
+      "makesOffer": {
+        "@type": "Offer",
+        "itemOffered": { "@type": "SoftwareApplication", "name": "EneMap AI", "applicationCategory": "BusinessApplication" }
+      }
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #0a1020;
+            --navy-2: #0f172a;
+            --emerald: #10b981;
+            --volt: #fbbf24;
+            --cyan: #22d3ee;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #34d399 0%, #22d3ee 45%, #fbbf24 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 6s linear infinite;
+        }
+        @keyframes shimmer { to { background-position: 200% center; } }
+
+        /* ヒーロー：等高線×探索網のキャンバス */
+        .hero-wrap { position: relative; background: var(--navy); overflow: hidden; }
+        #gridCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-vignette {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background:
+                radial-gradient(ellipse 90% 60% at 50% 0%, transparent 40%, rgba(10,16,32,0.55) 100%),
+                linear-gradient(to bottom, rgba(10,16,32,0.25), rgba(10,16,32,0.0) 30%, rgba(10,16,32,0.92) 96%);
+        }
+
+        .live-dot { position: relative; width: 8px; height: 8px; border-radius: 9999px; background: var(--volt); }
+        .live-dot::after {
+            content: ""; position: absolute; inset: -4px; border-radius: 9999px;
+            border: 2px solid rgba(251,191,36,.6); animation: ping 1.8s cubic-bezier(0,0,.2,1) infinite;
+        }
+        @keyframes ping { 75%, 100% { transform: scale(2.2); opacity: 0; } }
+
+        .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.16,1,.3,1); }
+        .reveal.is-in { opacity: 1; transform: none; }
+        .reveal-d1 { transition-delay: .08s; } .reveal-d2 { transition-delay: .16s; } .reveal-d3 { transition-delay: .24s; }
+
+        .lift { transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s; }
+        .lift:hover { transform: translateY(-6px); box-shadow: 0 24px 48px -16px rgba(2,6,23,.18); }
+
+        .stat-num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+        /* セクション間の通電ライン */
+        .powerline { position: relative; height: 64px; }
+        .powerline::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:2px; transform:translateX(-50%);
+            background: linear-gradient(to bottom, transparent, rgba(16,185,129,.5), transparent); }
+        .powerline::after { content:""; position:absolute; left:50%; top:0; width:6px; height:6px; border-radius:9999px; transform:translateX(-50%);
+            background:#fbbf24; box-shadow:0 0 12px 3px rgba(251,191,36,.7); animation: drop 2.2s ease-in infinite; }
+        @keyframes drop { from { top: -8px; opacity: 0; } 15% { opacity: 1; } to { top: 100%; opacity: 0; } }
+
+        /* 理念カードの縁取りグロー */
+        .creed-card { position: relative; }
+        .creed-card::before {
+            content:""; position:absolute; inset:0; border-radius: 1rem; padding:1px;
+            background: linear-gradient(140deg, rgba(52,211,153,.5), rgba(34,211,238,.2), transparent 60%);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events:none;
+        }
+
+        /* タイムライン（事業展開） */
+        .tl-line { background: linear-gradient(to right, #34d399, #22d3ee, #fbbf24); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .gradient-text, .live-dot::after, .powerline::after { animation: none !important; }
+            .reveal { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 bg-white">
+
+    <!-- Header -->
+    <header id="site-header" class="fixed w-full z-50 transition-all duration-300 bg-transparent">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#top" class="text-2xl font-extrabold text-white flex items-center gap-2 tracking-tight">
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 text-slate-900 shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid fa-location-dot"></i>
+                </span>
+                Swift <span class="gradient-text">Map</span>
+            </a>
+            <nav class="hidden md:flex space-x-8 items-center" id="nav-links">
+                <a href="#creed" class="text-slate-300 hover:text-emerald-400 font-medium transition-colors">理念</a>
+                <a href="#business" class="text-slate-300 hover:text-emerald-400 font-medium transition-colors">事業</a>
+                <a href="#company" class="text-slate-300 hover:text-emerald-400 font-medium transition-colors">会社概要</a>
+                <a href="#recruit" class="text-slate-300 hover:text-emerald-400 font-medium transition-colors">採用</a>
+            </nav>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="index.html" class="inline-flex items-center gap-1.5 text-white border border-slate-600 hover:border-emerald-400 hover:text-emerald-400 px-3.5 sm:px-5 py-2 rounded-full font-bold text-sm sm:text-base transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-bolt text-amber-300"></i> EneMap AI
+                </a>
+                <a href="#contact" class="hidden sm:inline-block bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-5 py-2 rounded-full font-bold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/50 whitespace-nowrap">
+                    お問い合わせ
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section id="top" class="hero-wrap pt-40 pb-28 md:pt-52 md:pb-40 text-white">
+        <canvas id="gridCanvas" aria-hidden="true"></canvas>
+        <div class="hero-vignette"></div>
+        <div class="hero-content container mx-auto px-6 text-center">
+            <div class="inline-flex items-center gap-2.5 bg-slate-800/70 backdrop-blur border border-emerald-500/30 rounded-full px-5 py-2 text-emerald-300 font-semibold text-sm mb-8 shadow-lg shadow-emerald-900/30">
+                <span class="live-dot"></span> Swift Map合同会社
+            </div>
+            <h1 class="text-4xl md:text-7xl font-black tracking-tight mb-7 leading-[1.15]" style="text-shadow: 0 2px 30px rgba(2,6,23,.6);">
+                探す時間を、<br>
+                <span class="gradient-text">前に進む時間へ。</span>
+            </h1>
+            <p class="text-lg md:text-2xl text-slate-300/90 mb-10 max-w-3xl mx-auto leading-relaxed">
+                空き地・遊休地の探索を自動化し、土地が動く速度を上げる。<br class="hidden md:block">
+                私たちは「候補地を見つける」という作業そのものを、テクノロジーで圧縮します。
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="index.html" class="group bg-emerald-500 hover:bg-emerald-400 text-slate-900 text-lg px-9 py-4 rounded-full font-extrabold transition-all transform hover:scale-[1.03] shadow-xl shadow-emerald-500/40">
+                    <i class="fa-solid fa-bolt mr-1"></i>製品「EneMap AI」を見る <i class="fa-solid fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+                </a>
+                <a href="#business" class="bg-slate-800/80 hover:bg-slate-700/80 backdrop-blur border border-slate-600 text-white text-lg px-9 py-4 rounded-full font-bold transition-all">
+                    事業を見る
+                </a>
+            </div>
+            <p class="mt-5 text-sm text-slate-400">
+                <i class="fa-solid fa-circle-info text-emerald-400 mr-1"></i>
+                製品が気になる方は <a href="index.html" class="text-emerald-400 font-bold underline underline-offset-2 hover:text-emerald-300">EneMap AI のサイト</a> へすぐにご案内します。
+            </p>
+        </div>
+    </section>
+
+    <!-- Creed / 理念体系 -->
+    <section id="creed" class="py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-sm mb-5 border border-emerald-100"><i class="fa-solid fa-compass"></i> OUR CREED</div>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">私たちの羅針盤</h2>
+                <p class="text-xl text-slate-600">意思決定は、常にこの3つに立ち返る。</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <!-- Why -->
+                <div class="creed-card bg-slate-50 rounded-2xl p-8 lift reveal">
+                    <div class="flex items-center gap-3 mb-5">
+                        <span class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-sm"><i class="fa-solid fa-heart"></i></span>
+                        <span class="text-xs font-mono tracking-widest text-slate-400">WHY — 理念</span>
+                    </div>
+                    <p class="text-2xl font-black text-slate-900 mb-3 leading-snug">探す時間を、<br>前に進む時間へ。</p>
+                    <p class="text-slate-600 leading-relaxed text-[15px]">土地探しに費やされる膨大な時間を、本来やるべき「前進」に充てられる社会へ。それが私たちの存在理由です。</p>
+                </div>
+                <!-- What -->
+                <div class="creed-card bg-slate-50 rounded-2xl p-8 lift reveal reveal-d1">
+                    <div class="flex items-center gap-3 mb-5">
+                        <span class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 text-cyan-600 flex items-center justify-center text-lg shadow-sm"><i class="fa-solid fa-bullseye"></i></span>
+                        <span class="text-xs font-mono tracking-widest text-slate-400">WHAT — ミッション</span>
+                    </div>
+                    <p class="text-2xl font-black text-slate-900 mb-3 leading-snug">探索を自動化し、<br>土地が動く速度を上げる。</p>
+                    <p class="text-slate-600 leading-relaxed text-[15px]">BESSに限らず、住宅・物流・再エネ・商業まで。用途を問わず「候補地を見つける」作業そのものを圧縮します。</p>
+                </div>
+                <!-- Where -->
+                <div class="creed-card bg-slate-50 rounded-2xl p-8 lift reveal reveal-d2">
+                    <div class="flex items-center gap-3 mb-5">
+                        <span class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 text-amber-600 flex items-center justify-center text-lg shadow-sm"><i class="fa-solid fa-mountain-sun"></i></span>
+                        <span class="text-xs font-mono tracking-widest text-slate-400">WHERE — ビジョン</span>
+                    </div>
+                    <p class="text-2xl font-black text-slate-900 mb-3 leading-snug">日本中の空き地が、<br>次の価値に変わる社会。</p>
+                    <p class="text-slate-600 leading-relaxed text-[15px]">増え続ける空き地・空き家・低未利用地と、活用したい人をつなぐ速度を上げ、社会課題の解決に貢献します。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Origin Story -->
+    <section class="py-24 bg-slate-50 border-y border-slate-200">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-200/70 text-slate-700 font-bold text-sm mb-5"><i class="fa-solid fa-seedling"></i> ORIGIN</div>
+                    <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-6 tracking-tight leading-tight">「それが、どこか」を<br>確定するだけで一日が終わる。</h2>
+                    <div class="space-y-4 text-slate-600 leading-relaxed text-[15px]">
+                        <p>蓄電池（BESS）などのデベロッパー業では、土地探しにあまりに多くの時間が費やされていました。</p>
+                        <p>GoogleMap・地番図・農振マップ——複数のタブを行き来するたびに座標が揮発し、有望な土地を見つけても「それがどこか」を確定するだけで膨大な時間を奪われる。</p>
+                        <p class="text-slate-900 font-bold">このいら立ちと非効率を解消すること。それが Swift Map 設立の、直接の動機です。</p>
+                    </div>
+                </div>
+                <div class="reveal reveal-d1">
+                    <div class="bg-slate-900 rounded-2xl p-8 shadow-2xl border border-slate-800 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-[.15] pointer-events-none" style="background-image: repeating-linear-gradient(0deg,#34d399 0 1px,transparent 1px 40px), repeating-linear-gradient(90deg,#34d399 0 1px,transparent 1px 40px);"></div>
+                        <p class="relative text-xs font-mono text-slate-500 tracking-widest mb-6">BEFORE → AFTER</p>
+                        <div class="relative space-y-5">
+                            <div class="flex items-center gap-4">
+                                <span class="w-10 h-10 rounded-lg bg-red-500/15 text-red-300 flex items-center justify-center"><i class="fa-solid fa-window-restore"></i></span>
+                                <div><p class="text-slate-200 font-bold">タブを5枚行き来</p><p class="text-slate-500 text-sm">座標が揮発し、毎回やり直し</p></div>
+                            </div>
+                            <div class="pl-5 text-emerald-400"><i class="fa-solid fa-arrow-down"></i></div>
+                            <div class="flex items-center gap-4">
+                                <span class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center"><i class="fa-solid fa-layer-group"></i></span>
+                                <div><p class="text-slate-100 font-bold">1枚の地図に集約</p><p class="text-slate-400 text-sm">探す作業を、判断する作業へ</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="powerline bg-gradient-to-b from-slate-50 to-white" aria-hidden="true"></div>
+
+    <!-- Business -->
+    <section id="business" class="py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 text-amber-700 font-bold text-sm mb-5 border border-amber-100"><i class="fa-solid fa-briefcase"></i> BUSINESS</div>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">事業内容</h2>
+                <p class="text-xl text-slate-600">「候補地を見つける」を自動化するプロダクトをつくっています。</p>
+            </div>
+
+            <!-- Flagship: EneMap AI -->
+            <div class="max-w-5xl mx-auto mb-16 reveal">
+                <div class="rounded-3xl overflow-hidden border border-slate-200 shadow-xl lift bg-white">
+                    <div class="grid md:grid-cols-5">
+                        <div class="md:col-span-3 p-8 md:p-12">
+                            <div class="flex items-center gap-2.5 mb-5">
+                                <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 text-slate-900"><i class="fa-solid fa-bolt"></i></span>
+                                <span class="text-xl font-extrabold text-slate-900">EneMap <span class="gradient-text">AI</span></span>
+                                <span class="ml-2 text-[11px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">主力プロダクト</span>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-4 tracking-tight leading-snug">系統用蓄電池・太陽光の<br>事業用地探索を、AIで自動化。</h3>
+                            <p class="text-slate-600 leading-relaxed mb-6">
+                                傾斜・農振区分・接道・民家からの離隔——人が数日かけて調べていた客観条件を、全国のGISデータから瞬時にスクリーニング。複数のマップを行き来する必要をなくし、担当者の仕事を「ナビゲーション」から「判断」へ変えます。
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-7">
+                                <span class="text-sm bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-medium"><i class="fa-solid fa-mountain text-emerald-500 mr-1"></i>傾斜の自動計算</span>
+                                <span class="text-sm bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-medium"><i class="fa-solid fa-house-circle-check text-emerald-500 mr-1"></i>民家離隔・接道判定</span>
+                                <span class="text-sm bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-medium"><i class="fa-solid fa-layer-group text-emerald-500 mr-1"></i>規制レイヤー統合</span>
+                                <span class="text-sm bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-medium"><i class="fa-solid fa-robot text-emerald-500 mr-1"></i>AI適地探索</span>
+                            </div>
+                            <a href="index.html" class="group inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-6 py-3 rounded-full font-extrabold transition-all shadow-lg shadow-emerald-500/30 hover:scale-[1.02]">
+                                EneMap AI 製品サイトを見る <i class="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                        <div class="md:col-span-2 relative bg-slate-900 p-8 flex flex-col justify-center gap-px overflow-hidden">
+                            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background: radial-gradient(circle at 70% 20%, rgba(16,185,129,.5), transparent 55%), radial-gradient(circle at 20% 90%, rgba(34,211,238,.35), transparent 55%);"></div>
+                            <div class="relative text-center py-4">
+                                <div class="stat-num text-4xl font-black text-emerald-400">47</div>
+                                <div class="text-xs text-slate-400 mt-1">都道府県の農地・規制データ</div>
+                            </div>
+                            <div class="relative text-center py-4 border-t border-slate-700/60">
+                                <div class="stat-num text-4xl font-black text-cyan-300">6,168</div>
+                                <div class="text-xs text-slate-400 mt-1">変電所を地図上に表示</div>
+                            </div>
+                            <div class="relative text-center py-4 border-t border-slate-700/60">
+                                <div class="stat-num text-4xl font-black text-amber-300">1<span class="text-xl">秒</span></div>
+                                <div class="text-xs text-slate-400 mt-1">条件スクリーニング</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roadmap: 領域展開 -->
+            <div class="max-w-5xl mx-auto reveal reveal-d1">
+                <p class="text-center text-sm font-bold text-slate-500 tracking-widest mb-8">そして、空き地活用全般へ。</p>
+                <div class="relative">
+                    <div class="hidden md:block tl-line absolute top-7 left-[12%] right-[12%] h-0.5 rounded-full opacity-60"></div>
+                    <div class="grid md:grid-cols-3 gap-8 relative">
+                        <div class="text-center">
+                            <div class="w-14 h-14 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-500/30 mb-4"><i class="fa-solid fa-battery-full"></i></div>
+                            <h4 class="font-bold text-slate-900 mb-2">NOW — BESS用地</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">蓄電池デベロッパー向けに、適地探索を提供。最初の主戦場。</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-14 h-14 mx-auto rounded-full bg-cyan-500 text-white flex items-center justify-center text-xl shadow-lg shadow-cyan-500/30 mb-4"><i class="fa-solid fa-solar-panel"></i></div>
+                            <h4 class="font-bold text-slate-900 mb-2">NEXT — 再エネ・不動産</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">太陽光・物流・住宅など、用途を問わず候補地探索のニーズへ展開。</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-14 h-14 mx-auto rounded-full bg-amber-400 text-slate-900 flex items-center justify-center text-xl shadow-lg shadow-amber-400/30 mb-4"><i class="fa-solid fa-city"></i></div>
+                            <h4 class="font-bold text-slate-900 mb-2">FUTURE — 空き地活用全般</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">土地と、活用したい人をつなぐ速度を上げ、遊休地を次の価値に。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Company Profile -->
+    <section id="company" class="py-24 bg-slate-50 border-t border-slate-200">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="text-center mb-12 reveal">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-200/70 text-slate-700 font-bold text-sm mb-5"><i class="fa-solid fa-building"></i> COMPANY</div>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">会社概要</h2>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden reveal reveal-d1">
+                <dl class="divide-y divide-slate-100">
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">会社名</dt>
+                        <dd class="text-slate-900 font-medium">Swift Map合同会社 <span class="text-slate-400 font-normal">（Swift Map LLC）</span></dd>
+                    </div>
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">事業内容</dt>
+                        <dd class="text-slate-900">空き地・遊休地探索の自動化ソフトウェアの開発・提供<br><span class="text-slate-500 text-sm">主力プロダクト: 用地探索プラットフォーム「EneMap AI」</span></dd>
+                    </div>
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">企業理念</dt>
+                        <dd class="text-slate-900">探す時間を、前に進む時間へ。</dd>
+                    </div>
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">代表者</dt>
+                        <dd class="text-slate-900 font-medium">菊池 紳太郎</dd>
+                    </div>
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">設立</dt>
+                        <dd class="text-slate-900 font-medium">2026年6月24日</dd>
+                    </div>
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">資本金</dt>
+                        <dd class="text-slate-900 font-medium">100,000円</dd>
+                    </div>
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">所在地</dt>
+                        <dd class="text-slate-900 font-medium">〒990-0021<br>山形県山形市小白川町三丁目４－３ ３０３号<br><span class="text-slate-500 text-sm">天神マンション</span></dd>
+                    </div>
+                    <div class="flex flex-col sm:flex-row px-6 py-5">
+                        <dt class="sm:w-44 font-bold text-slate-500 mb-1 sm:mb-0">お問い合わせ</dt>
+                        <dd class="text-slate-900"><a href="#contact" class="text-emerald-600 font-bold hover:text-emerald-500">お問い合わせフォーム</a> よりご連絡ください。</dd>
+                    </div>
+                </dl>
+            </div>
+            <p class="text-center text-xs text-slate-400 mt-4 reveal reveal-d2">
+                <i class="fa-solid fa-circle-info mr-1"></i>会社設立登記完了後に公開予定です。
+            </p>
+        </div>
+    </section>
+
+    <!-- Recruit -->
+    <section id="recruit" class="py-24 bg-white">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <div class="rounded-3xl overflow-hidden relative reveal" style="background: linear-gradient(160deg,#0a1020 0%,#0f2433 60%,#0a1f1a 100%);">
+                <div class="absolute inset-0 opacity-[.12] pointer-events-none" aria-hidden="true" style="background-image: repeating-linear-gradient(0deg,#34d399 0 1px,transparent 1px 56px), repeating-linear-gradient(90deg,#34d399 0 1px,transparent 1px 56px);"></div>
+                <div class="relative p-10 md:p-16 text-center text-white">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-sm mb-6 border border-emerald-500/30"><i class="fa-solid fa-users"></i> RECRUIT</div>
+                    <h2 class="text-3xl md:text-4xl font-black mb-5 tracking-tight">土地が動く速度を、一緒に上げませんか。</h2>
+                    <p class="text-slate-300 max-w-2xl mx-auto mb-9 leading-relaxed">
+                        小さなチームで、空き地探索という大きな非効率に挑んでいます。エンジニア・GIS・セールス・マーケティング——「探す時間を前に進む時間へ」変える仲間を探しています。
+                    </p>
+                    <a href="#contact" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-8 py-3.5 rounded-full font-extrabold transition-all shadow-lg shadow-emerald-500/30">
+                        カジュアルに話を聞く <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-24 relative overflow-hidden bg-slate-50 border-t border-slate-200">
+        <div class="container mx-auto px-6 max-w-3xl relative">
+            <div class="text-center mb-10 reveal">
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">お問い合わせ</h2>
+                <p class="text-slate-600">製品のご相談・取材・採用など、お気軽にご連絡ください。</p>
+            </div>
+
+            <div class="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-slate-100 reveal reveal-d1">
+                <form class="space-y-6" action="https://formspree.io/f/xojyreeg" method="POST">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">会社名 / 組織名</label>
+                            <input type="text" name="company" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="株式会社〇〇">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">お名前</label>
+                            <input type="text" name="name" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="山田 太郎" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">メールアドレス</label>
+                        <input type="email" name="email" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="yamada@example.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">お問い合わせ種別</label>
+                        <select name="request_type" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all bg-white">
+                            <option value="製品（EneMap AI）について">製品（EneMap AI）について</option>
+                            <option value="協業・パートナーシップ">協業・パートナーシップ</option>
+                            <option value="採用について">採用について</option>
+                            <option value="取材・メディア">取材・メディア</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">お問い合わせ内容</label>
+                        <textarea name="message" rows="4" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="ご相談内容をご記入ください"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-4 rounded-xl transition-all shadow-lg text-lg hover:shadow-emerald-500/20 hover:shadow-2xl">
+                        <i class="fa-solid fa-paper-plane text-emerald-300 mr-2"></i>送信する
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#0a1020] text-slate-400 py-12 border-t border-slate-800">
+        <div class="container mx-auto px-6 text-center">
+            <div class="text-2xl font-extrabold text-white mb-5 flex justify-center items-center gap-2">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 text-slate-900"><i class="fa-solid fa-location-dot text-sm"></i></span>
+                Swift <span class="gradient-text">Map</span>
+            </div>
+            <p class="mb-6 text-sm max-w-md mx-auto">探す時間を、前に進む時間へ。空き地・遊休地の探索を自動化し、土地が動く速度を上げます。</p>
+            <div class="flex justify-center flex-wrap gap-x-6 gap-y-2 mb-8 text-sm">
+                <a href="index.html" class="hover:text-white transition-colors">製品サイト（EneMap AI）</a>
+                <a href="https://greenbattery-production.up.railway.app/tokushoho" target="_blank" rel="noopener" class="hover:text-white transition-colors">特定商取引法に基づく表記</a>
+                <a href="https://greenbattery-production.up.railway.app/terms" target="_blank" rel="noopener" class="hover:text-white transition-colors">利用規約</a>
+                <a href="https://greenbattery-production.up.railway.app/privacy" target="_blank" rel="noopener" class="hover:text-white transition-colors">プライバシーポリシー</a>
+            </div>
+            <p class="text-xs text-slate-600">&copy; 2026 Swift Map合同会社. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+    (function () {
+        "use strict";
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* ヘッダー：スクロールで不透明化 */
+        var header = document.getElementById('site-header');
+        function onScroll() {
+            var solid = window.scrollY > 40;
+            header.className = 'fixed w-full z-50 transition-all duration-300 ' +
+                (solid ? 'bg-[#0a1020]/90 backdrop-blur-md shadow-lg shadow-black/20 border-b border-slate-800' : 'bg-transparent');
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        /* スクロール出現 */
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+            });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+        /* ヒーロー背景：等高線（土地）×探索網パルス */
+        var canvas = document.getElementById('gridCanvas');
+        var ctx = canvas.getContext('2d');
+        var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+        var nodes = [], edges = [], pulses = [];
+
+        function resize() {
+            var r = canvas.parentElement.getBoundingClientRect();
+            W = r.width; H = r.height;
+            canvas.width = W * DPR; canvas.height = H * DPR;
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            buildNetwork();
+        }
+
+        function buildNetwork() {
+            nodes = []; edges = []; pulses = [];
+            var count = Math.max(10, Math.min(22, Math.floor(W / 90)));
+            for (var i = 0; i < count; i++) {
+                nodes.push({ x: Math.random() * W, y: H * 0.15 + Math.random() * H * 0.8 });
+            }
+            for (var a = 0; a < nodes.length; a++) {
+                var ds = nodes.map(function (n, idx) {
+                    var dx = n.x - nodes[a].x, dy = n.y - nodes[a].y;
+                    return { idx: idx, d: dx * dx + dy * dy };
+                }).filter(function (o) { return o.idx !== a; }).sort(function (p, q) { return p.d - q.d; });
+                for (var k = 0; k < 2 && k < ds.length; k++) {
+                    var b = ds[k].idx, key = a < b ? a + '-' + b : b + '-' + a;
+                    if (!edges.some(function (e) { return e.key === key; })) edges.push({ key: key, a: a, b: b });
+                }
+            }
+            var pulseCount = Math.max(4, Math.floor(edges.length / 3));
+            for (var p = 0; p < pulseCount; p++) {
+                pulses.push({ e: Math.floor(Math.random() * edges.length), t: Math.random(), speed: 0.003 + Math.random() * 0.004, dir: Math.random() < 0.5 ? 1 : -1 });
+            }
+        }
+
+        function drawContours(t) {
+            var lines = 7;
+            for (var i = 0; i < lines; i++) {
+                var baseY = H * (0.18 + i * 0.115);
+                ctx.beginPath();
+                for (var x = -20; x <= W + 20; x += 14) {
+                    var y = baseY
+                        + Math.sin(x * 0.006 + i * 1.7 + t * 0.00012) * 26
+                        + Math.sin(x * 0.0017 + i * 0.9 - t * 0.00007) * 44;
+                    if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = 'rgba(71, 105, 134,' + (0.16 + i * 0.012) + ')';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+
+        function drawNetwork() {
+            ctx.lineWidth = 1;
+            edges.forEach(function (e) {
+                var A = nodes[e.a], B = nodes[e.b];
+                ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y);
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.13)';
+                ctx.stroke();
+            });
+            nodes.forEach(function (n) {
+                ctx.beginPath(); ctx.arc(n.x, n.y, 2.2, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(110, 231, 183, 0.5)'; ctx.fill();
+            });
+            pulses.forEach(function (p) {
+                p.t += p.speed * p.dir;
+                if (p.t > 1 || p.t < 0) { p.e = Math.floor(Math.random() * edges.length); p.t = p.dir > 0 ? 0 : 1; }
+                var e = edges[p.e]; if (!e) return;
+                var A = nodes[e.a], B = nodes[e.b];
+                var x = A.x + (B.x - A.x) * p.t, y = A.y + (B.y - A.y) * p.t;
+                var g = ctx.createRadialGradient(x, y, 0, x, y, 9);
+                g.addColorStop(0, 'rgba(251, 191, 36, 0.95)');
+                g.addColorStop(0.4, 'rgba(251, 191, 36, 0.35)');
+                g.addColorStop(1, 'rgba(251, 191, 36, 0)');
+                ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2);
+                ctx.fillStyle = g; ctx.fill();
+                ctx.beginPath(); ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff7e0'; ctx.fill();
+            });
+        }
+
+        function frame(t) {
+            ctx.clearRect(0, 0, W, H);
+            drawContours(t);
+            drawNetwork();
+            requestAnimationFrame(frame);
+        }
+
+        resize();
+        window.addEventListener('resize', resize, { passive: true });
+        if (reduced) { drawContours(0); drawNetwork(); }
+        else { requestAnimationFrame(frame); }
+    })();
+    </script>
+</body>
+</html>

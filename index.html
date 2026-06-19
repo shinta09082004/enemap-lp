@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- 基本的なSEOメタタグ -->
-    <title>EneMap AI | 系統用蓄電池・太陽光発電の事業用地探し・土地選定ツール</title>
-    <meta name="description" content="系統用蓄電池や太陽光発電の事業用地探しをAIとGISデータで自動化。平坦・接道・民家からの離隔条件を瞬時にスクリーニングし、デベロッパーやEPCの用地開発における現地調査とアナログな地図確認作業のコストを劇的に削減します。">
-    <meta name="keywords" content="系統用蓄電池, 太陽光発電, 用地探し, 土地探し, 再生可能エネルギー, デベロッパー, EPC, GIS, 自動スクリーニング, EneMap AI">
+    <title>系統用蓄電池・太陽光の用地探索AI｜EneMap AI（適地を自動スクリーニング）</title>
+    <meta name="description" content="系統用蓄電池・太陽光発電の事業用地探索をAIとGISで自動化。傾斜・接道・民家離隔・農振（青地/白地）を全国47都道府県から瞬時にスクリーニングし、デベロッパー・EPCの用地開発の一次選定を即日に短縮します。系統用蓄電池の適地探しの新しい標準。">
+    <meta name="keywords" content="系統用蓄電池, BESS, 用地探索, 適地, 太陽光発電, 用地開発, 土地探し, 農地転用, 農振農用地, 青地 白地, 接道, 民家離隔, PCS 騒音, 系統連系, 変電所, 再生可能エネルギー, デベロッパー, EPC, GIS, EneMap AI">
     <meta name="author" content="Green Battery Project">
     <link rel="canonical" href="https://enemap-lp.vercel.app/">
 
@@ -42,21 +42,77 @@
       },
       {
         "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "EneMap AI",
+        "url": "https://enemap-lp.vercel.app/",
+        "description": "系統用蓄電池・太陽光発電の用地探索を、AIとGISデータで自動化するサービス。"
+      },
+      {
+        "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "EneMap AI",
         "operatingSystem": "Web",
         "applicationCategory": "BusinessApplication",
-        "description": "系統用蓄電池や太陽光発電の事業用地探しをAIとGISデータで自動化するツール。平坦・接道・民家離隔条件を瞬時にスクリーニングします。",
+        "description": "系統用蓄電池や太陽光発電の事業用地探索をAIとGISデータで自動化するツール。傾斜・接道・民家離隔・農振（青地/白地）を全国47都道府県から瞬時にスクリーニングします。",
         "offers": {
           "@type": "Offer",
           "price": "50000",
           "priceCurrency": "JPY"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "24"
         }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "系統用蓄電池の用地（適地）は、どんな条件で探せばよいですか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "主な条件は「傾斜（造成コスト）」「接道（パワコン・機材の搬入）」「民家からの離隔（PCS騒音対策）」「農地区分（青地は原則転用不可）」「系統連系点との距離」です。EneMap AIはこれらを全国47都道府県のGISデータから自動でスコアリングし、条件を満たす候補地だけを地図上に抽出します。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "農地を系統用蓄電池・太陽光の用地に転用できますか？青地と白地の違いは？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "農業振興地域の農用地区域（青地）は原則として転用できず、区域外の白地は転用できる可能性があります。EneMap AIは青地・白地を地図上で色分け表示し、転用不可の青地を自動で除外できます。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "系統用蓄電池と民家の離隔距離はどれくらい必要ですか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "PCS（パワーコンディショナ）の騒音トラブルを避けるため、民家からの離隔が重視されます。EneMap AIは建物との距離を自動計算し、30m・50m・100mなどの基準で候補地を絞り込めます。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "太陽光発電の用地探しにも使えますか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "はい。傾斜・接道・農振判定は太陽光の適地選定にも共通して使えます。メガソーラーのFIP対象外化を受けて蓄電池併設・転換を検討する事業者にも有効です。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "GISの専門知識がなくても使えますか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "はい。傾斜・接道・離隔・農振の判定ロジックを内蔵しているため、ArcGISやQGISのような解析設計・データ整備は不要です。GISに不慣れな開発・営業担当者でも、その場で候補地を出せます。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "料金や無料トライアルはありますか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Proプランは月額5万円（税別）からで、1週間の無料トライアルをご利用いただけます。チーム・複数ユーザー向けのEnterpriseプランもあります。"
+            }
+          }
+        ]
       }
     ]
     </script>
@@ -168,6 +224,7 @@
                 <a href="#features" class="text-gray-300 hover:text-emerald-400 font-medium transition-colors">機能・特徴</a>
                 <a href="#problems" class="text-gray-300 hover:text-emerald-400 font-medium transition-colors">解決する課題</a>
                 <a href="#pricing" class="text-gray-300 hover:text-emerald-400 font-medium transition-colors">料金プラン</a>
+                <a href="#faq" class="text-gray-300 hover:text-emerald-400 font-medium transition-colors">よくある質問</a>
             </nav>
             <a href="#contact" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-6 py-2 rounded-full font-bold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/50">
                 無料トライアル
@@ -184,7 +241,7 @@
                 <span class="live-dot"></span> 系統用蓄電池・太陽光発電の用地開発を加速
             </div>
             <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-6 leading-tight" style="text-shadow: 0 2px 30px rgba(2,6,23,.6);">
-                アナログな地図確認はもう終わり。<br>
+                系統用蓄電池・太陽光の用地探索。<br>
                 <span class="gradient-text">AIが「極上の事業用地」を1秒で発掘。</span>
             </h1>
             <p class="text-lg md:text-2xl text-slate-300/90 mb-10 max-w-3xl mx-auto leading-relaxed">
@@ -478,6 +535,79 @@
                         <div class="flex items-center gap-3"><i class="fa-solid fa-headset text-emerald-500 w-5 text-center"></i>メールサポート</div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-gray-50 border-t border-gray-200">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <div class="text-center mb-12 reveal">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-50 text-cyan-700 font-bold text-sm mb-5 border border-cyan-100"><i class="fa-solid fa-circle-question"></i> FAQ</div>
+                <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">系統用蓄電池・太陽光の用地探索 よくある質問</h2>
+                <p class="text-xl text-gray-600">適地条件・農地転用・離隔距離など、用地開発でよく聞かれる疑問にお答えします。</p>
+            </div>
+
+            <div class="space-y-4 reveal reveal-d1">
+                <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <summary class="flex items-center justify-between gap-4 cursor-pointer list-none px-6 py-5 font-bold text-gray-900 hover:text-emerald-600 transition-colors">
+                        <span>系統用蓄電池の用地（適地）は、どんな条件で探せばよいですか？</span>
+                        <i class="fa-solid fa-chevron-down text-emerald-500 transition-transform group-open:rotate-180 flex-none"></i>
+                    </summary>
+                    <div class="px-6 pb-6 -mt-1 text-gray-600 leading-relaxed">
+                        主な条件は「傾斜（造成コスト）」「接道（パワコン・機材の搬入）」「民家からの離隔（PCS騒音対策）」「農地区分（青地は原則転用不可）」「系統連系点との距離」です。EneMap AIはこれらを全国47都道府県のGISデータから自動でスコアリングし、条件を満たす候補地だけを地図上に抽出します。
+                    </div>
+                </details>
+
+                <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <summary class="flex items-center justify-between gap-4 cursor-pointer list-none px-6 py-5 font-bold text-gray-900 hover:text-emerald-600 transition-colors">
+                        <span>農地を系統用蓄電池・太陽光の用地に転用できますか？青地と白地の違いは？</span>
+                        <i class="fa-solid fa-chevron-down text-emerald-500 transition-transform group-open:rotate-180 flex-none"></i>
+                    </summary>
+                    <div class="px-6 pb-6 -mt-1 text-gray-600 leading-relaxed">
+                        農業振興地域の農用地区域（青地）は原則として転用できず、区域外の白地は転用できる可能性があります。EneMap AIは青地・白地を地図上で色分け表示し、転用不可の青地を自動で除外できます。
+                    </div>
+                </details>
+
+                <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <summary class="flex items-center justify-between gap-4 cursor-pointer list-none px-6 py-5 font-bold text-gray-900 hover:text-emerald-600 transition-colors">
+                        <span>系統用蓄電池と民家の離隔距離はどれくらい必要ですか？</span>
+                        <i class="fa-solid fa-chevron-down text-emerald-500 transition-transform group-open:rotate-180 flex-none"></i>
+                    </summary>
+                    <div class="px-6 pb-6 -mt-1 text-gray-600 leading-relaxed">
+                        PCS（パワーコンディショナ）の騒音トラブルを避けるため、民家からの離隔が重視されます。EneMap AIは建物との距離を自動計算し、30m・50m・100mなどの基準で候補地を絞り込めます。
+                    </div>
+                </details>
+
+                <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <summary class="flex items-center justify-between gap-4 cursor-pointer list-none px-6 py-5 font-bold text-gray-900 hover:text-emerald-600 transition-colors">
+                        <span>太陽光発電の用地探しにも使えますか？</span>
+                        <i class="fa-solid fa-chevron-down text-emerald-500 transition-transform group-open:rotate-180 flex-none"></i>
+                    </summary>
+                    <div class="px-6 pb-6 -mt-1 text-gray-600 leading-relaxed">
+                        はい。傾斜・接道・農振判定は太陽光の適地選定にも共通して使えます。メガソーラーのFIP対象外化を受けて蓄電池併設・転換を検討する事業者にも有効です。
+                    </div>
+                </details>
+
+                <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <summary class="flex items-center justify-between gap-4 cursor-pointer list-none px-6 py-5 font-bold text-gray-900 hover:text-emerald-600 transition-colors">
+                        <span>GISの専門知識がなくても使えますか？</span>
+                        <i class="fa-solid fa-chevron-down text-emerald-500 transition-transform group-open:rotate-180 flex-none"></i>
+                    </summary>
+                    <div class="px-6 pb-6 -mt-1 text-gray-600 leading-relaxed">
+                        はい。傾斜・接道・離隔・農振の判定ロジックを内蔵しているため、ArcGISやQGISのような解析設計・データ整備は不要です。GISに不慣れな開発・営業担当者でも、その場で候補地を出せます。
+                    </div>
+                </details>
+
+                <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <summary class="flex items-center justify-between gap-4 cursor-pointer list-none px-6 py-5 font-bold text-gray-900 hover:text-emerald-600 transition-colors">
+                        <span>料金や無料トライアルはありますか？</span>
+                        <i class="fa-solid fa-chevron-down text-emerald-500 transition-transform group-open:rotate-180 flex-none"></i>
+                    </summary>
+                    <div class="px-6 pb-6 -mt-1 text-gray-600 leading-relaxed">
+                        Proプランは月額¥50,000（税別）からで、1週間の無料トライアルをご利用いただけます。チーム・複数ユーザー向けのEnterpriseプランもあります。
+                    </div>
+                </details>
             </div>
         </div>
     </section>
